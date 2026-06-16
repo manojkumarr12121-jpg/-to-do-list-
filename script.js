@@ -1,130 +1,145 @@
-let currentFilter = 'all';
+// ===== State =====
+let todos = JSON.parse(localStorage.getItem('todos')) || [];
 
-function addTodo() {
-  const input = document.getElementById('todoInput');
-  const prioritySelect = document.getElementById('prioritySelect');
-  const text = input.value.trim();
-  const priority = prioritySelect.value;
-
-  if (text === '') return;
-
-  const li = createTaskElement(text, priority);
-  document.getElementById('todoList').appendChild(li);
-
-  input.value = '';
-  prioritySelect.value = 'medium';
-
-  updateEmptyMessage();
-  applyFilter(currentFilter);
-  saveTodos();
-}
-
-function createTaskElement(text, priority, completed = false) {
-  const li = document.createElement('li');
-  li.classList.add('todo-item', `priority-${priority}`);
-  li.dataset.priority = priority;
-  if (completed) li.classList.add('completed');
-
-  // Priority badge
-  const badge = document.createElement('span');
-  badge.classList.add('priority-badge', `badge-${priority}`);
-  const labels = { high: '🔴 High', medium: '🟡 Medium', low: '🟢 Low' };
-  badge.textContent = labels[priority];
-
-  // Task text
-  const span = document.createElement('span');
-  span.classList.add('task-text');
-  span.textContent = text;
-
-  // Complete button
-  const completeBtn = document.createElement('button');
-  completeBtn.textContent = '✔';
-  completeBtn.classList.add('complete-btn');
-  completeBtn.onclick = () => {
-    li.classList.toggle('completed');
-    saveTodos();
-  };
-
-  // Delete button
-  const deleteBtn = document.createElement('button');
-  deleteBtn.textContent = '🗑';
-  deleteBtn.classList.add('delete-btn');
-  deleteBtn.onclick = () => {
-    li.remove();
-    updateEmptyMessage();
-    saveTodos();
-  };
-
-  li.appendChild(badge);
-  li.appendChild(span);
-  li.appendChild(completeBtn);
-  li.appendChild(deleteBtn);
-
-  return li;
-}
-
-function filterTasks(priority) {
-  currentFilter = priority;
-
-  // Update active button style
-  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`filter-${priority}`).classList.add('active');
-
-  applyFilter(priority);
-}
-
-function applyFilter(priority) {
-  const items = document.querySelectorAll('.todo-item');
-  items.forEach(item => {
-    if (priority === 'all' || item.dataset.priority === priority) {
-      item.style.display = 'flex';
-    } else {
-      item.style.display = 'none';
-    }
-  });
-}
-
-function updateEmptyMessage() {
-  const list = document.getElementById('todoList');
-  const msg = document.getElementById('emptyMsg');
-  msg.style.display = list.children.length === 0 ? 'block' : 'none';
-}
-
-// 🆕 Save current tasks to the browser's localStorage
+// ===== Save to localStorage =====
 function saveTodos() {
-  const items = document.querySelectorAll('.todo-item');
-  const todos = [];
-
-  items.forEach(item => {
-    todos.push({
-      text: item.querySelector('.task-text').textContent,
-      priority: item.dataset.priority,
-      completed: item.classList.contains('completed')
-    });
-  });
-
   localStorage.setItem('todos', JSON.stringify(todos));
 }
 
-// 🆕 Load saved tasks back from localStorage when the page opens
-function loadTodos() {
-  const saved = localStorage.getItem('todos');
-  if (!saved) {
-    updateEmptyMessage();
+// ===== Render all todos =====
+function renderTodos() {
+  const list = document.getElementById('todoList');
+  const emptyMsg = document.getElementById('emptyMsg');
+
+  list.innerHTML = '';
+
+  if (todos.length === 0) {
+    emptyMsg.classList.add('visible');
     return;
   }
 
-  const todos = JSON.parse(saved);
-  const list = document.getElementById('todoList');
+  emptyMsg.classList.remove('visible');
 
-  todos.forEach(todo => {
-    const li = createTaskElement(todo.text, todo.priority, todo.completed);
+  todos.forEach((todo, index) => {
+    const li = document.createElement('li');
+    li.className = 'todo-item' + (todo.completed ? ' completed' : '');
+
+    if (todo.editing) {
+      // ---- EDIT MODE ----
+      li.innerHTML = `
+        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleComplete(${index})" />
+        <input class="edit-input" type="text" value="${escapeHtml(todo.text)}" id="edit-${index}" />
+        <button class="btn-update" onclick="updateTodo(${index})">Update</button>
+        <button class="btn-delete" onclick="deleteTodo(${index})">Delete</button>
+      `;
+
+      // Focus the edit input after render
+      setTimeout(() => {
+        const input = document.getElementById(`edit-${index}`);
+        if (input) {
+          input.focus();
+          input.selectionStart = input.value.length;
+        }
+      }, 0);
+
+      // Allow pressing Enter to save
+      const editInput = li.querySelector('.edit-input');
+      editInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') updateTodo(index);
+        if (e.key === 'Escape') cancelEdit(index);
+      });
+
+    } else {
+      // ---- NORMAL MODE ----
+      li.innerHTML = `
+        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleComplete(${index})" />
+        <span class="todo-text">${escapeHtml(todo.text)}</span>
+        <button class="btn-edit" onclick="startEdit(${index})">Edit</button>
+        <button class="btn-delete" onclick="deleteTodo(${index})">Delete</button>
+      `;
+    }
+
     list.appendChild(li);
   });
-
-  updateEmptyMessage();
-  applyFilter(currentFilter);
 }
 
-// 🆕 Run loadTodos as soon as the page loads
-window.onload = loadTodos;
+// ===== Add Todo =====
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+
+  if (!text) {
+    input.focus();
+    return;
+  }
+
+  todos.push({ text, completed: false, editing: false });
+  input.value = '';
+  input.focus();
+
+  saveTodos();
+  renderTodos();
+}
+
+// ===== Toggle Complete =====
+function toggleComplete(index) {
+  todos[index].completed = !todos[index].completed;
+  saveTodos();
+  renderTodos();
+}
+
+// ===== Start Edit Mode =====
+function startEdit(index) {
+  // Close any other open edits first
+  todos.forEach((t, i) => { if (i !== index) t.editing = false; });
+  todos[index].editing = true;
+  renderTodos();
+}
+
+// ===== Save Updated Text =====
+function updateTodo(index) {
+  const editInput = document.getElementById(`edit-${index}`);
+  const newText = editInput ? editInput.value.trim() : '';
+
+  if (!newText) {
+    editInput.focus();
+    return;
+  }
+
+  todos[index].text = newText;
+  todos[index].editing = false;
+
+  saveTodos();
+  renderTodos();
+}
+
+// ===== Cancel Edit (Escape key) =====
+function cancelEdit(index) {
+  todos[index].editing = false;
+  saveTodos();
+  renderTodos();
+}
+
+// ===== Delete Todo =====
+function deleteTodo(index) {
+  todos.splice(index, 1);
+  saveTodos();
+  renderTodos();
+}
+
+// ===== Helper: Escape HTML to prevent XSS =====
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ===== Allow pressing Enter in add input =====
+document.getElementById('todoInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addTodo();
+});
+
+// ===== Initial Render =====
+renderTodos();

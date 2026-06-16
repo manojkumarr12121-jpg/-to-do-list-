@@ -9,32 +9,16 @@
 <body>
   <div class="container">
     <h1>📝 My Todo List</h1>
+
     <div class="input-area">
       <input type="text" id="todoInput" placeholder="Enter a task..." />
-
-      <!-- 🆕 Priority dropdown -->
-      <select id="prioritySelect">
-        <option value="high">🔴 High</option>
-        <option value="medium" selected>🟡 Medium</option>
-        <option value="low">🟢 Low</option>
-      </select>
-
       <button onclick="addTodo()">Add</button>
-    </div>
-
-    <!-- 🆕 Filter buttons -->
-    <div class="filter-area">
-      <button onclick="filterTasks('all')" class="filter-btn active" id="filter-all">All</button>
-      <button onclick="filterTasks('high')" class="filter-btn" id="filter-high">🔴 High</button>
-      <button onclick="filterTasks('medium')" class="filter-btn" id="filter-medium">🟡 Medium</button>
-      <button onclick="filterTasks('low')" class="filter-btn" id="filter-low">🟢 Low</button>
     </div>
 
     <ul id="todoList"></ul>
     <p class="empty-msg" id="emptyMsg">No tasks yet. Add one above!</p>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
-
-<!-- GitHub contribution test -->
