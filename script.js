@@ -6,6 +6,13 @@ let currentFilter = 'all';
 function saveTodos() {
   localStorage.setItem('todos', JSON.stringify(todos));
 }
+// ===== Update Task Counter =====
+function updateCounter() {
+  const total = todos.length;
+  const completed = todos.filter(t => t.completed).length;
+  document.getElementById('taskCounter').textContent = 
+    `✅ ${completed} of ${total} tasks completed`;
+}
 
 // ===== Set Filter =====
 function setFilter(filter, btn) {
@@ -29,6 +36,7 @@ function renderTodos() {
   const filtered = getFiltered();
 
   list.innerHTML = '';
+    updateCounter();  
 
   if (filtered.length === 0) {
     emptyMsg.classList.add('visible');
@@ -158,4 +166,4 @@ document.getElementById('todoInput').addEventListener('keydown', (e) => {
 });
 
 // ===== Initial Render =====
-renderTodos();git add index.html style.css script.js
+renderTodos();
