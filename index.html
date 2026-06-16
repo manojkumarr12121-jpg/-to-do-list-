@@ -12,7 +12,21 @@
 
     <div class="input-area">
       <input type="text" id="todoInput" placeholder="Enter a task..." />
+      <select id="prioritySelect">
+        <option value="low">🟢 Low</option>
+        <option value="medium" selected>🟡 Medium</option>
+        <option value="high">🔴 High</option>
+      </select>
       <button onclick="addTodo()">Add</button>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-area">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('low', this)">🟢 Low</button>
+      <button class="filter-btn" onclick="setFilter('medium', this)">🟡 Medium</button>
+      <button class="filter-btn" onclick="setFilter('high', this)">🔴 High</button>
+      <button class="filter-btn" onclick="setFilter('completed', this)">✅ Done</button>
     </div>
 
     <ul id="todoList"></ul>
