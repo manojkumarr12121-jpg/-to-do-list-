@@ -107,6 +107,23 @@ h1 {
 
 .filter-btn:hover { border-color: #00b4d8; color: #00b4d8; }
 .filter-btn.active { background: #00b4d8; border-color: #00b4d8; color: #fff; }
+.clear-btn {
+  padding: 6px 14px;
+  border: 2px solid #e63946;
+  border-radius: 20px;
+  background: transparent;
+  color: #e63946;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+
+.clear-btn:hover {
+  background: #e63946;
+  color: #fff;
+}
 .task-counter {
   text-align: center;
   color: #00b4d8;
