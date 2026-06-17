@@ -144,6 +144,52 @@ function cancelEdit(index) {
   renderTodos();
 }
 
+
+ 
+
+// ===== Drag and Drop =====
+function addDragAndDrop() {
+  const items = document.querySelectorAll('.todo-item');
+  let draggedIndex = null;
+
+  items.forEach((item, i) => {
+    item.setAttribute('draggable', true);
+
+    item.addEventListener('dragstart', () => {
+      draggedIndex = i;
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+    });
+
+    item.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      item.classList.add('drag-over');
+    });
+
+    item.addEventListener('dragleave', () => {
+      item.classList.remove('drag-over');
+    });
+
+    item.addEventListener('drop', () => {
+      item.classList.remove('drag-over');
+      if (draggedIndex === null || draggedIndex === i) return;
+
+      const dragged = todos.splice(draggedIndex, 1)[0];
+      todos.splice(i, 0, dragged);
+
+      draggedIndex = null;
+      saveTodos();
+      renderTodos();
+    });
+  });
+
+
+addDragAndDrop();
+}
+
 // ===== Delete Todo =====
 function deleteTodo(index) {
   todos.splice(index, 1);

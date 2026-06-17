@@ -134,7 +134,23 @@ h1 {
   animation: slideIn 0.2s ease;
   border-left: 4px solid transparent;
 }
+.todo-item.dragging {
+  opacity: 0.4;
+  border: 2px dashed #00b4d8;
+}
 
+.todo-item.drag-over {
+  border: 2px dashed #e9c46a;
+  transform: scale(1.01);
+}
+
+.todo-item {
+  cursor: grab;
+}
+
+.todo-item:active {
+  cursor: grabbing;
+}
 .todo-item.priority-low    { border-left-color: #2ec4b6; }
 .todo-item.priority-medium { border-left-color: #e9c46a; }
 .todo-item.priority-high   { border-left-color: #e63946; }
@@ -203,6 +219,9 @@ h1 {
   color: #e0e0e0;
   font-size: 0.82rem;
   outline: none;
+  appearance: none;
+  -webkit-appearance: none ;
+
 }
 
 /* Action Buttons */
