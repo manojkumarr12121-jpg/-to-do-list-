@@ -32,12 +32,14 @@ const getFiltered = () => {
   if (currentFilter === 'completed') return allTodos.filter(t => t.completed);
   return allTodos.filter(t => t.priority === currentFilter);
 };
-
 // show all tasks on screen
 const renderTodos = () => {
   const list = document.getElementById('todoList');
   const emptyMsg = document.getElementById('emptyMsg');
   const filtered = getFiltered();
+  const keyword= document.getElementById('searchInput').value.trim().tolowercase(); 
+  const searched= keyword ? filtered. filter(t=> t, text.tolowerCase().includes(keyword)): filtered;
+
 
   list.innerHTML = '';
   updateCounter();
@@ -49,7 +51,7 @@ const renderTodos = () => {
 
   emptyMsg.classList.remove('visible');
 
-  filtered.forEach(todo => {
+    searched.forEach(todo => {
     const index = todo.index;
     const li = document.createElement('li');
     const badgeLabel = todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1);
