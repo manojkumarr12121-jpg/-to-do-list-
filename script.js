@@ -10,11 +10,16 @@ const saveTodos = () => {
 };
 
 // show task counter
-const updateCounter = () => {
-  const total = todos.length;
-  const completed = todos.filter(t => t.completed).length;
-  document.getElementById('taskCounter').textContent = `✅ ${completed} of ${total} tasks completed`;
-};
+ const updateCounter =()=>{
+  const total = todo.length;
+  const completed=todos.length;
+  const completed= todos.filter(t=> t.completed).lenght;
+  const percent=totale  === 0?0:Math.round ((completed /tolal)* 100);
+  document.getelemntById ('taskCounter').textContent='✅ $(completed} of ${total} tasks  complete';
+  document.getElementById('progressFill'),style.width='${percent}%'; 
+ };
+
+
 
 // filter button click
 const setFilter = (filter, btn) => {
